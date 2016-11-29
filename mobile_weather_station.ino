@@ -7,7 +7,7 @@
 #include "report_server_connection.h"
 
 // Data logging configuration.
-#define LOGGING_FREQ_SECONDS   10       // Seconds to wait before a new sensor reading is logged.
+#define LOGGING_FREQ_SECONDS   300       // Seconds to wait before a new sensor reading is logged.
 
 
 char http_url[] = "/wiki/images/1/15/Hello.txt";
@@ -33,18 +33,10 @@ void report_temperature()
     return;
   }
 
-  unsigned int status;
-  String status_text;
-  String response;
-  int ret = report.http_get("exploreembedded.com", 80, String(http_url), status, status_text, response);
+  int ret = report.reportTempData("54.214.48.0", 8888, 72, 45);
   if (0 != ret)
   {
-    Serial.println("Failed to get data");
-  }
-  else
-  {
-    Serial.print("Successfully read data: ");
-    Serial.println(response);
+    Serial.println("Failed to post data");
   }
 
   Serial.println("Shutting down GPRS");

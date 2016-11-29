@@ -18,9 +18,7 @@ public:
 
   int connectTCP(const String & server, uint16_t port);
   int sendTCPData(const String & data);
-  int readBuffer(char* buffer,int count, unsigned int timeOut = DEFAULT_TIMEOUT, bool raw = false);
-  int readLine(char* buffer,int count, unsigned int timeOut = DEFAULT_TIMEOUT);
-  int http_get(const String & host, unsigned short port, const String & url, unsigned int & status, String & status_text, String &response);
+  int reportTempData(const String & host, unsigned short port, float temperature, float humiditiy);
   void disconnectTCP();
 
   void serialDebug();
@@ -30,6 +28,7 @@ private:
   bool connnect_to_mobile_network(int retries);
 
   int send_http_get_request(const String & url);
+  int send_http_post_request(const String & url, const String & urldata);
   int read_http_header(unsigned int & status, String & status_text, unsigned int & content_length);
   int read_http_content(unsigned int content_length, String & content);
 

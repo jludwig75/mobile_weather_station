@@ -96,7 +96,7 @@ void manage_sleep()
       
       Serial.println("Sleeping");
       Serial.flush();
-      delay(1000);
+      delay(500);
     }
   }
   

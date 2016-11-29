@@ -7,7 +7,7 @@
 #include <SoftwareSerial.h>
 
 // Data logging configuration.
-#define LOGGING_FREQ_SECONDS   300       // Seconds to wait before a new sensor reading is logged.
+#define LOGGING_FREQ_SECONDS   (15 * 60)       // Seconds to wait before a new sensor reading is logged.
 
 
 char http_url[] = "/wiki/images/1/15/Hello.txt";

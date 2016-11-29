@@ -15,7 +15,7 @@ void report_server::turn_on_sim800l()
 bool report_server::init_gprs(int retries)
 {
   _gprs->preInit();
-  
+
   for(int i = 0; i < retries && 0 != _gprs->init(); i++)
   {
      delay(500);
@@ -56,7 +56,7 @@ bool report_server::start_gprs_connection()
   {
      return false;
   }
-  
+
   return true;
 }
 
@@ -67,7 +67,7 @@ int report_server::connectTCP(const String & server, uint16_t port)
 
 int report_server::sendTCPData(const String & data)
 {
-  return _gprs->sendTCPData(data.c_str());
+  return _gprs->sendTCPData((char *)data.c_str());
 }
 
 void report_server::disconnectTCP()
@@ -105,7 +105,7 @@ int report_server::reportTempData(const String & host, unsigned short port, floa
   }
 
   String message = String("{\"temp\": ") + String(temperature) + ", \"bat\": 3.3, \"signal\": 1, \"berror\": 0}";
-  
+
   ret = sendTCPData(message.c_str());
   if(0 != ret)
   {
@@ -113,9 +113,7 @@ int report_server::reportTempData(const String & host, unsigned short port, floa
     disconnectTCP();
     return ret;
   }
-  
+
   disconnectTCP();
   return 0;
 }
-
-

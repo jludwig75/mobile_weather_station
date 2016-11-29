@@ -22,7 +22,7 @@ public:
   void disconnectTCP();
 
   void serialDebug();
-  
+
 private:
   bool init_gprs(int retries);
   bool connnect_to_mobile_network(int retries);

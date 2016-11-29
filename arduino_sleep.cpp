@@ -92,14 +92,15 @@ void manage_sleep()
       // Reset the number of sleep iterations.
       sleepIterations = 0;
 
-      Serial.println("On code wake up");
       g_on_wake();
+      
+      Serial.println("Sleeping");
+      Serial.flush();
+      delay(1000);
     }
   }
   
   // Go to sleep!
-  Serial.println("Sleeping");
-  Serial.flush();
   sleep();
   
 }

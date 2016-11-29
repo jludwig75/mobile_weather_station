@@ -6,66 +6,64 @@
 #include "arduino_sleep.h"
 #include "report_server_connection.h"
 
-
-
 // Data logging configuration.
-#define LOGGING_FREQ_SECONDS   300       // Seconds to wait before a new sensor reading is logged.
+#define LOGGING_FREQ_SECONDS   10       // Seconds to wait before a new sensor reading is logged.
 
 
-char http_cmd[] = "GET exploreembedded.com/wiki/images/1/15/Hello.txt HTTP/1.0\r\n\r\n";
-char buffer[512];
+char http_url[] = "/wiki/images/1/15/Hello.txt";
 
-GPRS gprs;
+report_server report;
 
+unsigned long sketch_start_time = 0;
 
 void report_temperature()
 {
-  turn_on_sim800l();
+  unsigned long elapsed = millis() - sketch_start_time;
+  elapsed /= 1000;
+  Serial.print("Reporting temperature at ");
+  Serial.print(elapsed);
+  Serial.println(" seconds");
+
+  report.turn_on_sim800l();
   Serial.println("Turned on SIM800L");
 
-  if (start_gprs_connection(gprs))
+  if (!report.start_gprs_connection())
   {
-    Serial.println("Connecting to mbed.org...");
-  
-    if (0 == gprs.connectTCP("exploreembedded.com", 80))
-    {
-      Serial.println("connect mbed.org success");
-      Serial.println("waiting to fetch...");
-      if(0 == gprs.sendTCPData(http_cmd))
-      {
-        gprs.serialDebug();
-      }
-      gprs.closeTCP();
-      gprs.shutTCP();
-    }
-    else
-    {
-        Serial.println("connect error");
-    }
+    Serial.println("Failed to connect to mobile network,");
+    return;
+  }
+
+  unsigned int status;
+  String status_text;
+  String response;
+  int ret = report.http_get("exploreembedded.com", 80, String(http_url), status, status_text, response);
+  if (0 != ret)
+  {
+    Serial.println("Failed to get data");
   }
   else
   {
-    Serial.println("Failed to connect to mobile network,");
+    Serial.print("Successfully read data: ");
+    Serial.println(response);
   }
 
   Serial.println("Shutting down GPRS");
-  shutdown_gprs(gprs);
+  report.shutdown_gprs();
 }
 
 void setup()
 {
   Serial.begin(9600);
-  while(!Serial);
+  while (!Serial);
   pinMode(13, OUTPUT);
   digitalWrite(13, LOW);
 
-  Serial.println("Setup");
+  Serial.println("Mobile Weather Station");
 
+  sketch_start_time = 0;
   report_temperature();
 
   configure_sleep(report_temperature, LOGGING_FREQ_SECONDS);
-  
-  Serial.println("Setup complete.");
 }
 
 void loop()

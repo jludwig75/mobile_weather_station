@@ -1,10 +1,10 @@
 #include <Arduino.h>
 
-#include <sim800.h>
-#include <SoftwareSerial.h>
-
 #include "arduino_sleep.h"
 #include "report_server_connection.h"
+
+#include <sim800.h>
+#include <SoftwareSerial.h>
 
 // Data logging configuration.
 #define LOGGING_FREQ_SECONDS   300       // Seconds to wait before a new sensor reading is logged.
@@ -34,10 +34,15 @@ void report_temperature()
   }
 
   int ret = report.reportTempData("54.214.48.0", 8888, 72, 45);
-  if (0 != ret)
+  if (0 == ret)
+  {
+    Serial.println("Successfully reported weather data to server");
+  }
+  else
   {
     Serial.println("Failed to post data");
   }
+
 
   Serial.println("Shutting down GPRS");
   report.shutdown_gprs();

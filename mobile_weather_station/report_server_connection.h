@@ -12,13 +12,13 @@ public:
   report_server();
 
   void turn_on_sim800l();
-  void shutdown_gprs();
+  void shutdown_sim800l();
 
-  bool start_gprs_connection();
+  bool start_gprs_connection(int retries);
 
-  int connectTCP(const String & server, uint16_t port);
-  int sendTCPData(const String & data);
-  int reportTempData(const String & host, unsigned short port, float temperature, float humiditiy);
+  int connectTCP(const String & server, uint16_t port, int retries);
+  int sendTCPData(const String & data, int retries);
+  int reportTempData(const String & host, unsigned short port, float temperature, float humiditiy, int retries);
   void disconnectTCP();
 
   void serialDebug();

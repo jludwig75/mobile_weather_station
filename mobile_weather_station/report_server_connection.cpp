@@ -45,29 +45,69 @@ bool report_server::connnect_to_mobile_network(int retries)
   return false;
 }
 
-bool report_server::start_gprs_connection()
+bool report_server::start_gprs_connection(int retries)
 {
-  if (!init_gprs(20))
+  bool success = false;
+  for(int i = 0; i < retries; retries++)
   {
-     return false;
+    if (!init_gprs(20))
+    {
+       continue;
+    }
+
+    success = true;
+    break;
+  }
+  if (!success)
+  {
+    return false;
   }
 
-  if (!connnect_to_mobile_network(10))
+  success = false;
+  for(int i = 0; i < retries; retries++)
   {
-     return false;
+    if (!connnect_to_mobile_network(10))
+    {
+       continue;
+    }
+
+    success = true;
+    break;
+  }
+  if (!success)
+  {
+    return false;
   }
 
   return true;
 }
 
-int report_server::connectTCP(const String & server, uint16_t port)
+int report_server::connectTCP(const String & server, uint16_t port, int retries)
 {
-  return _gprs->connectTCP(server.c_str(), port);
+  int ret = -1;
+  for(int i = 0; i < retries; i++)
+  {
+    ret = _gprs->connectTCP(server.c_str(), port);
+    if (0 == ret)
+    {
+      break;
+    }
+  }
+  return ret;
 }
 
-int report_server::sendTCPData(const String & data)
+int report_server::sendTCPData(const String & data, int retries)
 {
-  return _gprs->sendTCPData((char *)data.c_str());
+  int ret = -1;
+  for(int i = 0; i < retries; i++)
+  {
+    ret = _gprs->sendTCPData((char *)data.c_str());
+    if (0 == ret)
+    {
+      break;
+    }
+  }
+  return ret;
 }
 
 void report_server::disconnectTCP()
@@ -76,7 +116,7 @@ void report_server::disconnectTCP()
       _gprs->shutTCP();
 }
 
-void report_server::shutdown_gprs()
+void report_server::shutdown_sim800l()
 {
   Serial.println("Shutting down SIM800L");
   if (0 != _gprs->sendCmdAndWaitForResp("AT+CPOWD=1", "OK", 3))
@@ -93,11 +133,11 @@ void report_server::serialDebug()
   _gprs->serialDebug();
 }
 
-int report_server::reportTempData(const String & host, unsigned short port, float temperature, float humiditiy)
+int report_server::reportTempData(const String & host, unsigned short port, float temperature, float humiditiy, int retries)
 {
   int ret;
 
-  ret = connectTCP(host, port);
+  ret = connectTCP(host, port, retries);
   if (0 != ret)
   {
     Serial.println("Failed to connect to host");
@@ -106,7 +146,7 @@ int report_server::reportTempData(const String & host, unsigned short port, floa
 
   String message = String("{\"temp\": ") + String(temperature) + ", \"bat\": 3.3, \"signal\": 1, \"berror\": 0}";
 
-  ret = sendTCPData(message.c_str());
+  ret = sendTCPData(message.c_str(), retries);
   if(0 != ret)
   {
     Serial.println("Failed to send data to host");
